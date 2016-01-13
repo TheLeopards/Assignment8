@@ -23,8 +23,17 @@ names(alldata) <- c("band1", "band2", "band3", "band4", "band5", "band7", "VCF")
 ## extract all data to a data.frame
 df <- as.data.frame(getValues(alldata))
 
+# produce one or more plots that demonstrate the relationship between the Landsat bands and the VCF tree cover. 
+# What can you conclude from this/these plot(s)?
+opar <- par(mfrow=c(3,2))
+for(i in 1:nlayers(alldata[[1:6]])){
+	plot(alldata[[i]], alldata$VCF, pch = ".", col = "darkgreen", main= "Relationship between Landsat bands and VCF")
+	}
+
+
 # getting rid of values above 100 which represent clouds etc. (keeping just forest cover)
 vcfGewata[vcfGewata > 100] <- NA
+
 
 # model
 model <- lm(VCF ~ band1 + band2 + band3 + band4 + band5 + band7, data = df, importance=TRUE)
@@ -44,5 +53,10 @@ RMSE <- sqrt(mean((alldata$VCF-predVCF)^2))
 par(opar)
 plot(RMSE)
 
-
-
+#Using the training polygons from the random forest 
+#classification, calculate the RMSE separately for each of the classes and compare.
+load("data/trainingPoly.rda")
+zonal <- zonal(alldata, trainingPoly, fun=mean)
+plot(zonal)
+plot(predVCF)
+plot(trainingPoly, add=TRUE)
