@@ -57,11 +57,19 @@ RMSE
 	# convert SpatialPolygons to raster object to be able to use zonal statistics function
 trainingPoly@data$Code <- as.numeric(trainingPoly@data$Class)
 classes <- rasterize(trainingPoly, alldata, field='Code')
+
 	# applying zonal statistics to RMSE using training polygons
-RMSE_classes <- zonal(RMSE, classes, fun=mean, na.rm=TRUE)
-	# editing resulting matrix for analysis
-RMSE_classes <- cbind(RMSE_classes, c("cropland","forest", "wetland"))
-colnames(RMSE_classes) <- c("Zone", "RMSE", "Class")
+orig_zonal <- zonal(alldata$VCF, classes, fun=mean, na.rm=TRUE)
+pred_zonal <- zonal(predVCF, classes, fun=mean, na.rm=TRUE)
+
+RMSE_class1 <- sqrt(mean(orig_zonal[1,2]-pred_zonal[1,2])^2)
+RMSE_class2 <- sqrt(mean(orig_zonal[2,2]-pred_zonal[2,2])^2)
+RMSE_class3 <- sqrt(mean(orig_zonal[3,2]-pred_zonal[3,2])^2)
+
+# creating a matrix for analysis
+Class_RMSE_matrix = matrix(c(1, 2, 3, round(RMSE_class1, digits=2), round(RMSE_class2, digits=2), round(RMSE_class3, digits=2),"cropland","forest", "wetland"), nrow=3, ncol=3)
+colnames(Class_RMSE_matrix) <- c("Class", "RMSE", "Description")
+Class_RMSE_matrix
 
 
 
