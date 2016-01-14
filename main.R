@@ -36,8 +36,10 @@ vcfGewata[vcfGewata > 100] <- NA
 
 
 # model
-model <- lm(VCF ~ band1 + band2 + band3 + band4 + band5 + band7, data = df, importance=TRUE)
-
+model <- lm(VCF ~ band1 + band2 + band3 + band4 + band5 + band7, data = df)
+summary(model)
+model@summar$
+anova(model)
 #summary(alldata$VCF)
 summary(model)
 
@@ -55,10 +57,22 @@ RMSE <- sqrt(mean((alldata$VCF-predVCF)^2))
 par(opar)
 plot(RMSE)
 
-#Using the training polygons from the random forest 
-#classification, calculate the RMSE separately for each of the classes and compare.
+#Using the training polygons from the random forest classification, 
+#calculate the RMSE separately for each of the classes and compare.
 load("data/trainingPoly.rda")
-zonal <- zonal(alldata, trainingPoly, fun=mean)
-plot(zonal)
-plot(predVCF)
-plot(trainingPoly, add=TRUE)
+# convert SpatialPolygons to raster object to be able to sue zonal statistics
+trainingPoly@data$Code <- as.numeric(trainingPoly@data$Class)
+classes <- rasterize(trainingPoly, alldata, field='Code')
+RMSE_classes <- zonal(RMSE, classes, fun=mean, na.rm=TRUE)
+RMSE_classes <- cbind(RMSE_classes, c("cropland","forest", "wetland"))
+colnames(RMSE_classes) <- c("Zone", "RMSE", "Class")
+
+
+
+
+
+
+
+
+
+
