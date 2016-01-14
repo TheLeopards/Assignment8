@@ -47,8 +47,11 @@ plot(vcfGewata, main="Original forest cover")
 par(opar)
 
 # calculating RMSE
-RMSE <- sqrt(mean((alldata$VCF-predVCF)^2))
-plot(RMSE)
+prepRMSE <- (alldata$VCF-predVCF)^2
+meanRMSE <- cellStats(prepRMSE, stat=mean)
+
+RMSE <- sqrt(meanRMSE)
+RMSE
 
 # calculating RMSE for trainingpolygons
 	# convert SpatialPolygons to raster object to be able to use zonal statistics function
